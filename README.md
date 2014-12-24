@@ -40,7 +40,7 @@ You can put any code you like in your config file, you may want to cross referen
 			}]
 	}
 
-Depending on the underlying engine what you return will be different. See the examples in example_configs
+Depending on the underlying database engine what you return will be different. See the examples in example_configs
 
 ##Database Drivers
 
@@ -65,4 +65,9 @@ The database driver to use is selected in your config file by having a section m
 > 
 > You will need the instant_client and instant_client_sdk from oracle to
 > build this driver.  It is **not** installed by default
+>
+> ### new engines
+>
+> If you implement a new database engine and are happy to share please do so!
+
 

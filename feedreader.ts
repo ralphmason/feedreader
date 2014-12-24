@@ -1,8 +1,6 @@
 /// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
 /// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
 
-require('v8-profiler');
-
 import _=require('lodash');
 var parseXML=require('xml2js').parseString;
 var async = require('async');

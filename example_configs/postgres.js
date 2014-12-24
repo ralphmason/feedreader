@@ -32,10 +32,7 @@ exports.config = {
         }
     }
 };
-function q(x) {
-    x = x.replace(/'/g, '\'');
-    return "'" + x + "'";
-}
+var q = require('../sqlutil').escapeQuote;
 exports.transform_UnitMessage = function (record) {
     return ['pvt', {
         ID: record.Id,

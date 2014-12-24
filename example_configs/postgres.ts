@@ -37,10 +37,7 @@ exports.config = {
     }
 };
 
-function q(x){
-    x= x.replace(/'/g,'\'');
-    return "'"+x+"'";
-}
+var q = require('../sqlutil').escapeQuote;
 
 exports.transform_UnitMessage = function (record) {
 
@@ -69,7 +66,7 @@ exports.transform_UnitMessage = function (record) {
 Example schema
 
 create table pvt(
- ID oid,
+ ID varchar,
  SERIAL_NO varchar,
  TAG varchar,
  SPEED int,
