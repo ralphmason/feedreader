@@ -1,0 +1,17 @@
+/* Example JSON over-ride of logging options */
+
+{
+  "feed": {
+    "company": "telogis", /* same as  -s feed.company=telogis */
+    "user": "demo",
+    "password": "password",
+    "topic": "realtime_feed"
+  },
+  "logs":{
+        "Console":{
+          "level":"silly"
+        }
+
+  }
+}
+

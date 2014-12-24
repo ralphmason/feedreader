@@ -1,0 +1,24 @@
+{
+  "name": "telogis-feedreader",
+  "version": "1.0.0",
+  "description": "Telogis Realtime Feedreader for oracle",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "telogis"
+  ],
+  "dependencies":{
+    "lodash":"latest",
+    "xml2js":"latest",
+    "async":"latest",
+    "winston":"latest",
+    "oracle":"latest",
+    "pg":"latest",
+    "mongodb":"latest",
+    "node-getopt":"latest"
+  },
+  "author": "Ralph Mason",
+  "license": "MIT"
+}
