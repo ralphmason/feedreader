@@ -1,6 +1,4 @@
-/**
- * Created by ralphmason on 21/12/14.
- */
+
 /// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
 /// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
 import http = require('https');
@@ -10,7 +8,7 @@ import _ = require('lodash');
 
 
 
-var format = exports['format']=function (str:string, ...args:any[]):string {
+var format = exports.format=function (str:string, ...args:any[]):string {
         return str.replace(/{(\d+)}/g, (match, number)=> {
             return typeof args[number] != 'undefined'
                 ? args[number]
@@ -19,7 +17,7 @@ var format = exports['format']=function (str:string, ...args:any[]):string {
         });
     }
 
-var fetch=exports['fetch']=function (url:string, then:(err:string, data)=>void) {
+var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
 
     url = "https://" + url;
 
@@ -67,7 +65,7 @@ var REFRESH_TIMEOUT = 1000*60*60*12;
 
 function getSession(config,then:(err,dat)=>void ){
 
-    if ( session == null || Date.now() - sessionCreateTime > REFRESH_TIMEOUT){
+    if ( session == null || ( Date.now() - sessionCreateTime) > REFRESH_TIMEOUT){
 
         winston.info('requesting new session');
 
@@ -91,7 +89,7 @@ function getSession(config,then:(err,dat)=>void ){
 }
 var SAVE_FILE='incomming.feed.message';
 
-var pull=exports['pull']=function(config,then:(err,dat)=>void){
+exports.pull=function(config,then:(err,dat)=>void){
 
     if ( fs.existsSync(SAVE_FILE) ){
         fs.readFile (SAVE_FILE,'utf8',then);
@@ -118,7 +116,7 @@ var pull=exports['pull']=function(config,then:(err,dat)=>void){
 
 }
 
-var ack=exports['ack']=function(){
+exports.ack=function(){
 
     fs.unlinkSync(SAVE_FILE);
 

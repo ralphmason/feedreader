@@ -1,4 +1,4 @@
-/* Example JSON over-ride of logging options */
+/* Example JSON override of logging options used with -f ./example_configs/config.json */
 
 {
   "feed": {

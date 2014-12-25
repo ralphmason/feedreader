@@ -1,6 +1,3 @@
-/**
- * Created by ralphmason on 23/12/14.
- */
 /// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
 /// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
 var utils = require('./util');

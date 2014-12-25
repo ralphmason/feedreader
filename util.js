@@ -1,13 +1,10 @@
-/**
- * Created by ralphmason on 21/12/14.
- */
 /// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
 /// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
 var http = require('https');
 var fs = require('fs');
 var winston = require('winston');
 var _ = require('lodash');
-var format = exports['format'] = function (str) {
+var format = exports.format = function (str) {
     var args = [];
     for (var _i = 1; _i < arguments.length; _i++) {
         args[_i - 1] = arguments[_i];
@@ -16,7 +13,7 @@ var format = exports['format'] = function (str) {
         return typeof args[number] != 'undefined' ? args[number] : match;
     });
 };
-var fetch = exports['fetch'] = function (url, then) {
+var fetch = exports.fetch = function (url, then) {
     url = "https://" + url;
     winston.debug(url);
     try {
@@ -50,7 +47,7 @@ var session = null;
 var sessionCreateTime = Date.now();
 var REFRESH_TIMEOUT = 1000 * 60 * 60 * 12;
 function getSession(config, then) {
-    if (session == null || Date.now() - sessionCreateTime > REFRESH_TIMEOUT) {
+    if (session == null || (Date.now() - sessionCreateTime) > REFRESH_TIMEOUT) {
         winston.info('requesting new session');
         fetch(format('api.telogis.com/rest/login/{0}/{1}/{2}', config.company, config.user, config.password), function (err, ret) {
             if (err) {
@@ -68,7 +65,7 @@ function getSession(config, then) {
     }
 }
 var SAVE_FILE = 'incomming.feed.message';
-var pull = exports['pull'] = function (config, then) {
+exports.pull = function (config, then) {
     if (fs.existsSync(SAVE_FILE)) {
         fs.readFile(SAVE_FILE, 'utf8', then);
         return;
@@ -89,7 +86,7 @@ var pull = exports['pull'] = function (config, then) {
         });
     });
 };
-var ack = exports['ack'] = function () {
+exports.ack = function () {
     fs.unlinkSync(SAVE_FILE);
 };
 var isNumber = /^[+-]?\d+$/;

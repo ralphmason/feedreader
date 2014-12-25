@@ -48,7 +48,6 @@ function toOracleDate(m){
 
 exports.transform_UnitMessage = function (record) {
 
-
     return ['pvt', {
 
         SEQ_ID: record.Id,

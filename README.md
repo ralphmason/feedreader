@@ -1,8 +1,8 @@
 # Telogis Feedreader
 
-The Telogis feedreader reads the telogis real-time xml feed and inserts the messages in a database of your choosing. It  uses simple custom data transformations to transform the raw messages into almost any format you need. See the config_examples directory for sample configuration and transformations
+The Telogis feedreader application reads the telogis real-time xml feed and inserts the messages in a database of your choosing. It  uses simple custom data transformations to transform the raw messages into almost any format you need. See the config_examples directory for sample configuration and transformations
 
-You can transform the messages and perform other logic in you #configfile
+You transform XML messages and perform other logic in you #configfile
 
 Running the application
 
@@ -59,7 +59,7 @@ The database driver to use is selected in your config file by having a section m
 > 
 > ###oracle
 > 
-> oracle uses the npm oracle module, this can be difficult to install. 
+> oracle uses the npm oracle module, there are many dependencies for this module.
 > See [npm oracle](https://www.npmjs.com/package/oracle) for install
 > details.
 > 
