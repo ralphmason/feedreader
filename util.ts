@@ -122,8 +122,11 @@ exports.ack=function(){
 
 }
 
-var isNumber = /^[+-]?\d+$/;
-var isFloat = /^[+-]?\d+\.\d+$/;
+
+var isNumber = /^[+-]?\d+$/,
+    isFloat = /^[+-]?\d+\.\d+$/,
+    isIso = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/;
+
 
 function clean(x) {
     if (Array.isArray(x) && x.length == 1) {
@@ -136,8 +139,11 @@ function clean(x) {
         } else if (isNumber.test(ret)) {
             ret = parseInt(ret);
         } else if (isFloat.test(ret)) {
-            ret = parseFloat(ret)
+            ret = parseFloat(ret);
+        } else if (isIso.test(ret)) {
+            ret = new Date(ret);
         }
+
         return ret;
     }
     else if (Array.isArray(x) && x.length > 1) {
@@ -153,4 +159,23 @@ exports.cleanObject=function(data){
             data[v] = clean(data[v]);
         }
    return data;
+}
+
+function pad(number) {
+    if (number < 10) {
+        return '0' + number;
+    }
+    return number;
+}
+
+exports.toISOString=function (d) {
+
+        return d.getUTCFullYear() +
+            '-' + pad(d.getUTCMonth() + 1) +
+            '-' + pad(d.getUTCDate()) +
+            'T' + pad(d.getUTCHours()) +
+            ':' + pad(d.getUTCMinutes()) +
+            ':' + pad(d.getUTCSeconds()) +
+            '.' + (d.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
+            'Z';
 }

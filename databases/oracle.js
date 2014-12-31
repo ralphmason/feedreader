@@ -7,11 +7,17 @@
  */
 var makeSqInserts = require('../sqlutil').makeSqInserts;
 var oracle = require('oracle');
+var util = require('../util');
+function toOracleDate(m) {
+    var time = util.toISOString(m).split('.')[0];
+    return "TO_DATE('" + time.replace('T', ' ') + "','YYYY-MM-DD HH24:MI:SS')";
+}
 module.exports = function (transformed, winston, config, next) {
-    var sql = makeSqInserts(transformed);
+    var sql = makeSqInserts(transformed, toOracleDate);
     oracle.connect(config, function (err, con) {
         if (err) {
             winston.error('connecting to oracle');
+            winston.error(err.message);
             next(err, null);
             return;
         }
@@ -20,7 +26,7 @@ module.exports = function (transformed, winston, config, next) {
         con.execute(torun, [], function (err, ret) {
             if (err) {
                 winston.error('executing sql');
-                winston.error(err);
+                winston.error(err.message);
                 winston.error(torun);
                 next(err, null);
                 return;

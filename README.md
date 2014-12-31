@@ -1,6 +1,6 @@
 # Telogis Feedreader
 
-The Telogis feedreader application reads the telogis real-time xml feed and inserts the messages in a database of your choosing. It  uses simple custom data transformations to transform the raw messages into almost any format you need. See the config_examples directory for sample configuration and transformations
+Feedreader is an application reads the Telogis real-time xml feed and inserts the messages in a database of your choosing. It  uses simple custom data transformations to transform the raw messages into almost any format you need. See the config_examples directory for sample configuration and transformations
 
 You transform XML messages and perform other logic in you #configfile
 

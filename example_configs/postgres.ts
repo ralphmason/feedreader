@@ -37,14 +37,13 @@ exports.config = {
     }
 };
 
-var q = require('../sqlutil').escapeQuote;
 
 exports.transform_UnitMessage = function (record) {
 
     return ['pvt', {
         ID: record.Id,
-        SERIAL_NO: q(record.SerialNumber.toString(16)),
-        TAG: q(record.VehicleTag),
+        SERIAL_NO: (record.SerialNumber.toString(16)),
+        TAG: (record.VehicleTag),
         SPEED:  record.SpeedKph,
         HEADING:record.Heading,
         LATITUDE: record.Latitude,
@@ -52,13 +51,13 @@ exports.transform_UnitMessage = function (record) {
         LOCATION_TIMESTAMP:q(record.Time),
         MILEAGE: record.OdometerKm,
         NUMBER: record.StreetNumber,
-        STREET: q(record.StreetName),
-        SUBURB: q(record.Suburb),
-        CITY: q(record.City),
-        STATE: q(record.Region),
+        STREET: (record.StreetName),
+        SUBURB: (record.Suburb),
+        CITY: (record.City),
+        STATE: (record.Region),
         ZIP: record.PostCode,
-        COUNTY: q(record.County),
-        COUNTRY: q(record.Country)
+        COUNTY: (record.County),
+        COUNTRY: (record.Country)
     }];
 }
 

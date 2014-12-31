@@ -6,10 +6,9 @@ var pg=require('pg');
 var util=require('../util');
 var makeSqInserts=require('../sqlutil').makeSqInserts;
 
-
 module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
-    var sql= makeSqInserts(transformed);
+    var sql= makeSqInserts(transformed,x=>"'"+ util.toISOString(x) + "'");
      var conString = util.format("postgres://{0}:{1}@{2}/{3}",config.user,config.password,
             config.hostname,config.database);
 

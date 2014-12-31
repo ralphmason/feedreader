@@ -1,7 +1,7 @@
 {
   "name": "telogis-feedreader",
   "version": "1.0.0",
-  "description": "Telogis Realtime Feedreader for oracle",
+  "description": "Telogis Realtime Feedreader",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,6 +19,6 @@
     "mongodb":"latest",
     "node-getopt":"latest"
   },
-  "author": "Ralph Mason",
+  "author": "Telogis Inc",
   "license": "MIT"
 }
