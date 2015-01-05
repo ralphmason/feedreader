@@ -68,8 +68,10 @@ function run() {
             });
         },
          (err)=> {
-            winston.error(err);
-             process.exit(1);
+             winston.error(err)
+             winston.error('Feedreader exiting with error',err=> {
+                 setTimeout(()=>{process.exit(1);},1000); //winston bug doesn't flush on process exit
+             });
         });
     });
 }
@@ -135,6 +137,11 @@ function loadConfiguration() {
     config.db = config[<string>db];
 
     winston.info('using database handler (%s)', db);
+
+    if ( config.feed.proxy ){
+        winston.info('using proxy %s',config.feed.proxy);
+        utils.proxy(config.feed.proxy);
+    }
 }
 
 

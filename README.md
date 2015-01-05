@@ -32,15 +32,7 @@ Example
 			return ['foo',{ bar:Foo.Bar } ]
 	}
 
-You can put any code you like in your config file, you may want to cross reference other data.
-
-	exports.transform_Foo=function(aFoo){
-			return ['foo',{ bar:Foo.Bar },function(){
-				console.log('hey I'm foo with a bar of ' + this.bar ); 
-			}]
-	}
-
-Depending on the underlying database engine what you return will be different. See the examples in example_configs
+Depending on the underlying database engine what you return will be different. See the examples in the example_configs directory
 
 ##Database Drivers
 

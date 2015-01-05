@@ -9,8 +9,8 @@
  */
 
 var makeSqInserts=require('../sqlutil').makeSqInserts;
-var oracle=require('oracle');
 var util=require('../util');
+var path=require('path');
 
 function toOracleDate(m){
     var time=util.toISOString(m).split('.')[0];
@@ -21,32 +21,96 @@ function toOracleDate(m){
 module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
     var sql= makeSqInserts(transformed,toOracleDate);
+    var torun = 'BEGIN ' + sql.join('\n') + ' END;';
+    winston.silly(torun);
 
-    oracle.connect(config, (err, con)=> {
-        if (err) {
-            winston.error('connecting to oracle');
-            winston.error(err.message);
-            next(err,null);
-            return;
-        }
+    if ( ! config.sqlplus) {
 
-        var torun = 'BEGIN ' + sql.join('\n') + ' END;';
 
-        winston.silly(torun);
-
-        con.execute(torun, [], (err, ret)=> {
+        require('oracle').connect(config, (err, con)=> {
             if (err) {
-                winston.error('executing sql');
+                winston.error('connecting to oracle');
                 winston.error(err.message);
-                winston.error(torun);
-                next(err,null);
+                next(err, null);
                 return;
             }
-            winston.info('inserted %d rows', sql.length);
 
-            con.close();
-            next(null,null);
+            con.execute(torun, [], (err, ret)=> {
+                if (err) {
+                    winston.error('executing sql');
+                    winston.error(err.message);
+                    winston.error(torun);
+                    next(err, null);
+                    return;
+                }
+                winston.info('inserted %d rows', sql.length);
+
+                con.close();
+                next(null, null);
+            });
         });
-    });
+    }
+    else {
+        /*
+         oracle: {
+         hostname: "oracle",
+         port: 1521,
+         database: "orcl",
+         user: "system",
+         password: "oracle",
+
+         */
+
+        var opts = {};
+
+        if ( process.platform=='darwin' && ! process.env['DYLD_LIBRARY_PATH']) {
+            opts.env={DYLD_LIBRARY_PATH: path.dirname(config.sqlplus)};
+        }
+
+
+        var spawn = require('child_process').spawn;
+        var sqlplus = spawn(config.sqlplus, [util.format('{0}/{1}@{2}:{3}/{4}',
+                config.user, config.password, config.hostname, config.port, config.database)],opts);
+
+        sqlplus.on('close', code=> {
+            winston.info('inserted %d rows', sql.length);
+            next(null, null);
+        });
+
+        sqlplus.on('error', err=> {
+            winston.error(err);
+            next(err, null);
+        })
+
+        sqlplus.stderr.on('data', d=> {
+            winston.error(d.toString());
+            next(d.toString(), null);
+
+        });
+
+        var sentSql = false;
+
+        sqlplus.stdout.on('data', d=> {
+
+            var str = d.toString();
+
+            if (!/^( *\d+ *)+$/.test(str)) {
+                winston.debug(str);
+            }
+
+            if (/ERROR/.test(str)) {
+                winston.error(str);
+                next(str, null);
+            }
+
+            if (!sentSql && /SQL>/.test(d.toString())) {
+                sentSql = true;
+                sqlplus.stdin.write(torun + '\n/\nexit\n', 'utf8', ()=> {
+                });
+            }
+        });
+
+
+    }
 }
 

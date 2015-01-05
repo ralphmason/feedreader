@@ -30,6 +30,9 @@ exports.config = {
     }
 };
 exports.transform_UnitMessage = function (record) {
+    record.LatLong = { loc: { type: "Point", coordinates: [record.Longitude, record.Latitude] } };
+    delete record.Longitude;
+    delete record.Latitude;
     return ['pvt', record];
 };
 //# sourceMappingURL=mongo.js.map

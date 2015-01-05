@@ -41,16 +41,16 @@ exports.transform_UnitMessage = function (record) {
         HEADING: record.Heading,
         LATITUDE: record.Latitude,
         LONGITUDE: record.Longitude,
-        LOCATION_TIMESTAMP: q(record.Time),
+        LOCATION_TIMESTAMP: record.Time,
         MILEAGE: record.OdometerKm,
         NUMBER: record.StreetNumber,
-        STREET: (record.StreetName),
-        SUBURB: (record.Suburb),
-        CITY: (record.City),
-        STATE: (record.Region),
+        STREET: record.StreetName,
+        SUBURB: record.Suburb,
+        CITY: record.City,
+        STATE: record.Region,
         ZIP: record.PostCode,
-        COUNTY: (record.County),
-        COUNTRY: (record.Country)
+        COUNTY: record.County,
+        COUNTRY: record.Country
     }];
 };
 //# sourceMappingURL=postgres.js.map

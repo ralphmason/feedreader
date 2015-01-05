@@ -17,7 +17,8 @@
     "oracle":"latest",
     "pg":"latest",
     "mongodb":"latest",
-    "node-getopt":"latest"
+    "node-getopt":"latest",
+    "request":"latest"
   },
   "author": "Telogis Inc",
   "license": "MIT"

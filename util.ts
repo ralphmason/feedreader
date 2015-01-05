@@ -1,12 +1,13 @@
 
 /// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
 /// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
-import http = require('https');
+//import http = require('https');
+
 import fs=require('fs');
 var winston = require('winston');
 import _ = require('lodash');
 
-
+import request=require('request');
 
 var format = exports.format=function (str:string, ...args:any[]):string {
         return str.replace(/{(\d+)}/g, (match, number)=> {
@@ -17,42 +18,49 @@ var format = exports.format=function (str:string, ...args:any[]):string {
         });
     }
 
+var aProxy;
+
+var proxy=exports.proxy=function(p){
+    aProxy=p;
+
+}
+
 var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
 
     url = "https://" + url;
 
     winston.debug(url);
 
+    var req= {url:url};
+    if ( aProxy ){
+        req.proxy=aProxy;
+        req.rejectUnauthorized=false;
+        req.requestCert= true;
+    }
+
+
+
     try {
 
-        var req =http.get(url, res=> {
+        request(req, (error, response, body)=> {
 
-            var json = '';
             var err = null;
 
-            if ((<any>res).statusCode != 200) {
-                err = 'Invalid response from server:' + (<any>res).statusCode;
+            if (error) {
+                err = 'Invalid response from server:' + error.message;
+            }
+            if ( body) {
+                winston.debug('<result>' + body.substring(0, 256).replace(/\r\n/g, ''));
+                winston.silly(body);
             }
 
-            res.on("data", d=> json += d);
-            res.on("end", e => {
-                winston.debug('<result>'+json.substring(0, 256).replace(/\r\n/g,''));
-                winston.silly(json);
+            if (err) {
+                then(err + " data:" + body, null);
+                return;
+            }
 
-                if (err) {
-                    then(err + " data:" + json,null);
-                    return;
-                }
-
-                then(null, json);
-            });
+            then(null, body);
         });
-
-        req.on('error', e=> {
-           winston.error(e);
-            then(e,null);
-        });
-
     }
     catch (err) {
         then(err, null);
@@ -78,6 +86,12 @@ function getSession(config,then:(err,dat)=>void ){
 
               var parsed = JSON.parse(ret);
               session = parsed.token;
+
+              if ( ! session ){
+                  then(ret,null);
+                  return;
+
+              }
               sessionCreateTime=Date.now();
 
               then(null,session);
