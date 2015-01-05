@@ -67,14 +67,17 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
             opts.env={DYLD_LIBRARY_PATH: path.dirname(config.sqlplus)};
         }
 
+        var isError=null;
 
         var spawn = require('child_process').spawn;
         var sqlplus = spawn(config.sqlplus, [util.format('{0}/{1}@{2}:{3}/{4}',
                 config.user, config.password, config.hostname, config.port, config.database)],opts);
 
         sqlplus.on('close', code=> {
-            winston.info('inserted %d rows', sql.length);
-            next(null, null);
+            if ( ! isError) {
+                winston.info('inserted %d rows', sql.length);
+            }
+            next(isError, null);
         });
 
         sqlplus.on('error', err=> {
@@ -100,7 +103,8 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
             if (/ERROR/.test(str)) {
                 winston.error(str);
-                next(str, null);
+                isError=str;
+                return;
             }
 
             if (!sentSql && /SQL>/.test(d.toString())) {
