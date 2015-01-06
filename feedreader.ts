@@ -26,6 +26,8 @@ function run() {
             utils.pull(config.feed, (err, ret)=> {
                 if (err) { next(err);return;}
 
+                winston.silly('Parsing XML');
+
                 parseXML(ret, (err, data)=> {
                     if (err) { next(err);return;}
 
@@ -69,6 +71,7 @@ function run() {
         },
          (err)=> {
              winston.error(err)
+             winston.error(err.message)
              winston.error('Feedreader exiting with error',err=> {
                  setTimeout(()=>{process.exit(1);},1000); //winston bug doesn't flush on process exit
              });

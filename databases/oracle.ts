@@ -11,6 +11,7 @@
 var makeSqInserts=require('../sqlutil').makeSqInserts;
 var util=require('../util');
 var path=require('path');
+var fs=require('fs');
 
 function toOracleDate(m){
     var time=util.toISOString(m).split('.')[0];
@@ -69,6 +70,14 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
         var isError=null;
 
+        if ( ! fs.existsSync(config.sqlplus)){
+            winston.error('sqlplus application does not exist at %s',config.sqlplus);
+            next('error',null);
+            return;
+
+        }
+
+
         var spawn = require('child_process').spawn;
         var sqlplus = spawn(config.sqlplus, [util.format('{0}/{1}@{2}:{3}/{4}',
                 config.user, config.password, config.hostname, config.port, config.database)],opts);
@@ -81,8 +90,8 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
         });
 
         sqlplus.on('error', err=> {
-            winston.error(err);
-            next(err, null);
+            isError=err.message;
+            return;
         })
 
         sqlplus.stderr.on('data', d=> {

@@ -21,6 +21,7 @@ function run() {
                     next(err);
                     return;
                 }
+                winston.silly('Parsing XML');
                 parseXML(ret, function (err, data) {
                     if (err) {
                         next(err);
@@ -61,6 +62,7 @@ function run() {
             });
         }, function (err) {
             winston.error(err);
+            winston.error(err.message);
             winston.error('Feedreader exiting with error', function (err) {
                 setTimeout(function () {
                     process.exit(1);
