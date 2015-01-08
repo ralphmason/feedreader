@@ -60,7 +60,7 @@ module.exports = function (transformed, winston, config, next) {
             return;
         }
         var spawn = require('child_process').spawn;
-        var sqlplus = spawn(config.sqlplus, [util.format('{0}/{1}@{2}:{3}/{4}', config.user, config.password, config.hostname, config.port, config.database)], opts);
+        var sqlplus = spawn(config.sqlplus, [util.format('{0}/{1}@{2}{3}{4}', config.user, config.password, config.hostname, config.port ? ':' + config.port : '', config.database ? '/' + config.database : '')], opts);
         sqlplus.on('close', function (code) {
             if (!isError) {
                 winston.info('inserted %d rows', sql.length);

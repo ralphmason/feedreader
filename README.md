@@ -22,7 +22,7 @@ Config files are the heart of the feedreader.  They contain the configuration fo
 
 ###Transform functions
 
-Transform functions are called transform_<XML NODE NAME>, the feedreader will pass json records to that function to be transformed.
+Transform functions are called transform_<<XML NODE NAME>>, the feedreader will pass json records to that function to be transformed.
 
 You function should return the table for an insert and a object representing the fields and their values (formatted for the target database).
 
@@ -50,13 +50,17 @@ The database driver to use is selected in your config file by having a section m
 > mongo collection.
 > 
 > ###oracle
+>
+> You have two choices with oracle the simple one - use the sqlplus client or install and build the oracle npm package.
+>> ####sqlplus
+>>To use sqlplus put a sqlplus key in your oracle config with the path to your sqlplus executable eg sqlplus:'/bin/sqlplus'
+>
+>> ####oracle drivers
+>> oracle uses the npm oracle module, there are many dependencies for this module.
+>> See [npm oracle](https://www.npmjs.com/package/oracle) for install
+>> details.
 > 
-> oracle uses the npm oracle module, there are many dependencies for this module.
-> See [npm oracle](https://www.npmjs.com/package/oracle) for install
-> details.
-> 
-> You will need the instant_client and instant_client_sdk from oracle to
-> build this driver.  It is **not** installed by default
+>> You will need the instant_client and instant_client_sdk from oracle to build this driver.  It is **not** installed by default
 >
 > ### new engines
 >

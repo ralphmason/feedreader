@@ -40,7 +40,7 @@ exports.transform_UnitMessage = function (record) {
         SEQ_ID: record.Id,
         ILM_SEQ_ID: 0,
         SERIAL_NO: (record.SerialNumber.toString(16)),
-        PVT_TYPE: record.SpeedKPH > 0 ? "MOVING" : "STOPPED",
+        PVT_TYPE: record.SpeedKph > 0 ? "MOVING" : "STOPPED",
         PVT_DESC: '',
         VEHICLE_LABEL: (record.VehicleTag),
         SPEED: record.SpeedKph,
