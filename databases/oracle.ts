@@ -62,6 +62,7 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
          */
 
+
         var opts = {};
 
         if ( process.platform=='darwin' && ! process.env['DYLD_LIBRARY_PATH']) {
@@ -113,6 +114,7 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
             if (/ERROR/.test(str)) {
                 winston.error(str);
                 isError=str;
+                sqlplus.kill();
                 return;
             }
 
@@ -122,6 +124,8 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
                 });
             }
         });
+
+
 
 
     }

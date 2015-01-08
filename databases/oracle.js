@@ -84,6 +84,7 @@ module.exports = function (transformed, winston, config, next) {
             if (/ERROR/.test(str)) {
                 winston.error(str);
                 isError = str;
+                sqlplus.kill();
                 return;
             }
             if (!sentSql && /SQL>/.test(d.toString())) {

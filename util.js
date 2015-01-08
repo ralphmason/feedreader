@@ -33,6 +33,9 @@ var fetch = exports.fetch = function (url, then) {
             if (error) {
                 err = 'Invalid response from server:' + error.message;
             }
+            if (response && response.statusCode != 200) {
+                err = 'response ' + response.statusCode + '  from server';
+            }
             if (body) {
                 winston.debug('<result>' + body.substring(0, 256).replace(/\r\n/g, ''));
                 winston.silly(body);
