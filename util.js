@@ -1,6 +1,5 @@
 /// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
 /// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
-//import http = require('https');
 var fs = require('fs');
 var winston = require('winston');
 var _ = require('lodash');
