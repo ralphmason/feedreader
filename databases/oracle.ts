@@ -13,15 +13,23 @@ var util=require('../util');
 var path=require('path');
 var fs=require('fs');
 
-function toOracleDate(m){
-    var time=util.toISOString(m).split('.')[0];
-    return "TO_DATE('"+time.replace('T',' ')+"','YYYY-MM-DD HH24:MI:SS')";
+function translate(m) {
+
+    if (m instanceof  Date) {
+        var time = util.toISOString(m).split('.')[0];
+        return "TO_DATE('" + time.replace('T', ' ') + "','YYYY-MM-DD HH24:MI:SS')";
+    }
+
+    if (typeof(m) == 'boolean') {
+        return m ? "'Y'" : "'N'";
+    }
+
 }
 
 
 module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
-    var sql= makeSqInserts(transformed,toOracleDate);
+    var sql= makeSqInserts(transformed,translate);
     var torun = 'BEGIN ' + sql.join('\n') + ' END;';
     winston.silly(torun);
 

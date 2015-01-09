@@ -4,7 +4,11 @@ var pg = require('pg');
 var util = require('../util');
 var makeSqInserts = require('../sqlutil').makeSqInserts;
 module.exports = function (transformed, winston, config, next) {
-    var sql = makeSqInserts(transformed, function (x) { return "'" + util.toISOString(x) + "'"; });
+    var sql = makeSqInserts(transformed, function (x) {
+        if (x instanceof Date) {
+            return "'" + util.toISOString(x) + "'";
+        }
+    });
     var conString = util.format("postgres://{0}:{1}@{2}/{3}", config.user, config.password, config.hostname, config.database);
     var torun = 'BEGIN; ' + sql.join('\n') + ' END;';
     winston.silly(torun);

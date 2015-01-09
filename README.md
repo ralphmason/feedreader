@@ -22,33 +22,36 @@ Config files are the heart of the feedreader.  They contain the configuration fo
 
 ###Transform functions
 
-Transform functions are called transform_<<XML NODE NAME>>, the feedreader will pass json records to that function to be transformed.
+Transform functions are called transform_&lt;XML NODE NAME&gt;, the feedreader will pass json records to that function to be transformed.
 
 You function should return the table for an insert and a object representing the fields and their values (formatted for the target database).
 
 Example
-
-	exports.transform_Foo=function(aFoo){
+<code>exports.transform_Foo=function(aFoo){
 			return ['foo',{ bar:Foo.Bar } ]
 	}
+</code>
 
-Depending on the underlying database engine what you return will be different. See the examples in the example_configs directory
+##Logging
+Logging uses winston for logging, each key in the logging section is treated as a winston transport class, the value of the key is passed directly to the transport
+
+See https://github.com/flatiron/winston
 
 ##Database Drivers
 
 The database driver to use is selected in your config file by having a section match the name of a driver file in the database directory.
 
 > ###postgres
-> 
-> In the config section a postgres key will enable the postgres driver. 
+>
+> In the config section a postgres key will enable the postgres driver.
 > See the postgres example for a sample connect string.  The driver uses
-> pg 
-> 
+> pg
+>
 > ### mongo
-> 
+>
 > The mongo example simply takes a record and inserts it into the named
 > mongo collection.
-> 
+>
 > ###oracle
 >
 > You have two choices with oracle the simple one - use the sqlplus client or install and build the oracle npm package.
@@ -59,11 +62,13 @@ The database driver to use is selected in your config file by having a section m
 >> oracle uses the npm oracle module, there are many dependencies for this module.
 >> See [npm oracle](https://www.npmjs.com/package/oracle) for install
 >> details.
-> 
+>
 >> You will need the instant_client and instant_client_sdk from oracle to build this driver.  It is **not** installed by default
 >
 > ### new engines
 >
 > If you implement a new database engine and are happy to share please do so!
-
+>
+> ## Putting it all together
+![enter image description here](https://www.lucidchart.com/publicSegments/view/54aff4e5-81cc-45f4-850d-31dc0a00851b/image.png)
 

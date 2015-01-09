@@ -6,7 +6,6 @@
 import fs=require('fs');
 var winston = require('winston');
 import _ = require('lodash');
-
 import request=require('request');
 
 var format = exports.format=function (str:string, ...args:any[]):string {
@@ -141,9 +140,16 @@ exports.ack=function(){
 }
 
 
-var isNumber = /^[+-]?\d+$/,
+var
+    isNumber = /^[+-]?\d+$/,
     isFloat = /^[+-]?\d+\.\d+$/,
+    isBool = /^(true|false)$/,
     isIso = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/;
+
+var tests=[isNumber,isFloat,isIso,isBool];
+var converters=[
+    x=>parseInt(x),x=>parseFloat(x),x=>new Date(x),x=>x=='true'
+]
 
 
 function clean(x) {
@@ -154,12 +160,11 @@ function clean(x) {
         var ret = x;
         if (ret.indexOf('\r\n') == 0) {
             ret = '';
-        } else if (isNumber.test(ret)) {
-            ret = parseInt(ret);
-        } else if (isFloat.test(ret)) {
-            ret = parseFloat(ret);
-        } else if (isIso.test(ret)) {
-            ret = new Date(ret);
+        } else {
+           var index = _.findIndex(tests,x=>x.test(ret));
+           if ( index !=-1 ){
+               ret=converters[index](ret);
+           }
         }
 
         return ret;

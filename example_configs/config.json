@@ -5,12 +5,19 @@
     "company": "telogis", /* same as  -s feed.company=telogis */
     "user": "demo",
     "password": "password",
-    "topic": "realtime_feed"
+    "topic": "realtime_feed",
+    //proxy: 'http://user:pass@host'
   },
   "logs":{
-        "Console":{
-          "level":"silly"
-        }
+        "Console": {
+          "level": "silly"
+        },
+          "File": {
+            "maxsize": 4000000,
+            "maxfiles": 10,
+            "level": "silly",
+            "timestamp": true,
+            "filename": "logs/feedreader.log"
 
   }
 }
