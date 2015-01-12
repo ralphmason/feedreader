@@ -1,4 +1,4 @@
-/// <reference path="../d.ts/DefinitelyTyped/node/node.d.ts" />
+/// <reference path="../typings/node/node.d.ts" />
 /*
  --For osx
  if ( process.platform=='darwin' && ! process.env['DYLD_LIBRARY_PATH']){

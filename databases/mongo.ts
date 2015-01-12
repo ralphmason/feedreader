@@ -1,6 +1,6 @@
 
-/// <reference path="../d.ts/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="../d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
+/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../typings/lodash/lodash.d.ts" />
 
 var mongo       = require('mongodb').MongoClient;
 import _        = require('lodash');

@@ -1,5 +1,5 @@
-/// <reference path="../d.ts/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="../d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
+/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../typings/lodash/lodash.d.ts" />
 /*
  Feed reader config file
  */
@@ -41,16 +41,16 @@ exports.transform_UnitMessage = function (record) {
         HEADING: record.Heading,
         LATITUDE: record.Latitude,
         LONGITUDE: record.Longitude,
-        LOCATION_TIMESTAMP: record.Time,
+        LOCATION_TIMESTAMP: q(record.Time),
         MILEAGE: record.OdometerKm,
         NUMBER: record.StreetNumber,
-        STREET: record.StreetName,
-        SUBURB: record.Suburb,
-        CITY: record.City,
-        STATE: record.Region,
+        STREET: (record.StreetName),
+        SUBURB: (record.Suburb),
+        CITY: (record.City),
+        STATE: (record.Region),
         ZIP: record.PostCode,
-        COUNTY: record.County,
-        COUNTRY: record.Country
+        COUNTY: (record.County),
+        COUNTRY: (record.Country)
     }];
 };
 //# sourceMappingURL=postgres.js.map

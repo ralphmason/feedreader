@@ -1,5 +1,4 @@
-/// <reference path="../d.ts/DefinitelyTyped/node/node.d.ts" />
-
+/// <reference path="../typings/node/node.d.ts" />
 
 /*
  --For osx
@@ -71,7 +70,7 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
          */
 
 
-        var opts = {};
+        var opts:{env?:any} = {};
 
         if ( process.platform=='darwin' && ! process.env['DYLD_LIBRARY_PATH']) {
             opts.env={DYLD_LIBRARY_PATH: path.dirname(config.sqlplus)};

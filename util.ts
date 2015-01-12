@@ -1,6 +1,7 @@
 
-/// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
+/// <reference path="./typings/node/node.d.ts" />
+/// <reference path="./typings/lodash/lodash.d.ts" />
+/// <reference path="./typings/request/request.d.ts" />
 
 import fs=require('fs');
 var winston = require('winston');
@@ -20,7 +21,6 @@ var aProxy;
 
 var proxy=exports.proxy=function(p){
     aProxy=p;
-
 }
 
 var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
@@ -29,7 +29,7 @@ var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
 
     winston.debug(url);
 
-    var req= {url:url};
+    var req:any= {url:url};
 
     if ( aProxy ){
         req.proxy=aProxy;
@@ -133,9 +133,7 @@ exports.pull=function(config,then:(err,dat)=>void){
 }
 
 exports.ack=function(){
-
     fs.unlinkSync(SAVE_FILE);
-
 }
 
 
@@ -146,10 +144,10 @@ var
     isIso = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/;
 
 var tests=[isNumber,isFloat,isIso,isBool];
-var converters=[
-    x=>parseInt(x),x=>parseFloat(x),x=>new Date(x),x=>x=='true'
-]
 
+var converters:{(x:any):any}[] =[
+    x=>parseInt(x),x=>parseFloat(x),x=>new Date(x),x=>x=='true'
+];
 
 function clean(x) {
     if (Array.isArray(x) && x.length == 1) {

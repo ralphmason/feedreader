@@ -1,5 +1,5 @@
-/// <reference path="./d.ts/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="./d.ts/DefinitelyTyped/lodash/lodash.d.ts" />
+/// <reference path="./typings/node/node.d.ts" />
+/// <reference path="./typings/lodash/lodash.d.ts" />
 var _ = require('lodash');
 var parseXML = require('xml2js').parseString;
 var async = require('async');
