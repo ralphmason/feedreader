@@ -48,7 +48,7 @@ exports.transform_UnitMessage = function (record) {
         HEADING:record.Heading,
         LATITUDE: record.Latitude,
         LONGITUDE: record.Longitude,
-        LOCATION_TIMESTAMP:q(record.Time),
+        LOCATION_TIMESTAMP:(record.Time),
         MILEAGE: record.OdometerKm,
         NUMBER: record.StreetNumber,
         STREET: (record.StreetName),
