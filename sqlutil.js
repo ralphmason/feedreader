@@ -8,15 +8,14 @@ function identity(x) {
 var formatSql = function (obj, translate) {
     for (var v in obj) {
         var val = obj[v];
-        var v = translate(val);
-        if (v) {
-            return v;
+        var t = translate(val);
+        if (!t) {
+            if (typeof (val) == 'string') {
+                obj[v] = q(val);
+            }
         }
-        if (typeof (val) == 'string') {
-            obj[v] = q(val);
-        }
-        else if (typeof (val) == 'boolean') {
-            return val;
+        else {
+            obj[v] = t;
         }
     }
 };

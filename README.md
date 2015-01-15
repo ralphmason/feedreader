@@ -59,6 +59,10 @@ The database driver to use is selected in your config file by having a section m
 >>To use sqlplus put a sqlplus key in your oracle config with the path to your sqlplus executable eg sqlplus:'/bin/sqlplus'
 >
 >> ####oracle drivers
+>>
+>> oracle is more complicated to get running, you need to download drivers / client from the oracle website.
+>>
+>> The easiest path is to use the sqlplus client with can be configured via the sqlplus c
 >> oracle uses the npm oracle module, there are many dependencies for this module.
 >> See [npm oracle](https://www.npmjs.com/package/oracle) for install
 >> details.
