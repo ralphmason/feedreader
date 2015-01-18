@@ -6,6 +6,7 @@ var async = require('async');
 var utils = require('./util');
 var winston = require('winston');
 var fs = require('fs');
+process.chdir(__dirname);
 var opts = require('node-getopt').create([
     ['c', 'config=ARG', 'Set config file, defaults to ./config'],
     ['s', 'setting=ARG+', 'Replace a setting in the config section of the config file'],
