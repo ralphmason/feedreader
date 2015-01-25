@@ -118,7 +118,15 @@ function loadConfiguration() {
     }
 
     winston.remove(winston.transports.Console);
-    _.keys(config.logs).forEach(k=>winston.add(winston.transports[k], config.logs[k]));
+    _.keys(config.logs).forEach(k=>{
+        var settings = config.logs[k];
+
+        if ( ! _.isArray(settings)){
+            settings=[settings];
+        }
+        var i=0;
+        settings.forEach(s=>winston.add(winston.transports[k],_.extend(s,{ name: k+':'+i++} )));
+    });
 
     winston.info('using config \'%s\'', configFileName);
 

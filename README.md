@@ -37,6 +37,16 @@ Logging uses winston for logging, each key in the logging section is treated as 
 
 See https://github.com/flatiron/winston
 
+You can support multiple transports of the same type by passing an array to of the type
+
+example
+
+<code>
+File:[ { filename:'file1.log'} , { filename:'file2.log' } ]
+</code>
+
+
+
 ##Database Drivers
 
 The database driver to use is selected in your config file by having a section match the name of a driver file in the database directory.

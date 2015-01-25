@@ -104,7 +104,14 @@ function loadConfiguration() {
         }
     }
     winston.remove(winston.transports.Console);
-    _.keys(config.logs).forEach(function (k) { return winston.add(winston.transports[k], config.logs[k]); });
+    _.keys(config.logs).forEach(function (k) {
+        var settings = config.logs[k];
+        if (!_.isArray(settings)) {
+            settings = [settings];
+        }
+        var i = 0;
+        settings.forEach(function (s) { return winston.add(winston.transports[k], _.extend(s, { name: k + ':' + i++ })); });
+    });
     winston.info('using config \'%s\'', configFileName);
     handledMessages = _.keys(configFile).filter(function (t) { return /transform_/.test(t); }).map(function (t) { return t.substring(10); });
     messageHandlers = _.zipObject(handledMessages, _.map(handledMessages, function (h) { return configFile['transform_' + h]; }));
