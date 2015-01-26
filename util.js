@@ -21,7 +21,10 @@ var proxy = exports.proxy = function (p) {
 var fetch = exports.fetch = function (url, then) {
     url = "https://" + url;
     winston.debug(url);
-    var req = { url: url };
+    var req = {
+        url: url,
+        gzip: true
+    };
     if (aProxy) {
         req.proxy = aProxy;
         req.rejectUnauthorized = false;
@@ -79,6 +82,7 @@ function getSession(config, then) {
 var SAVE_FILE = 'incomming.feed.message';
 exports.pull = function (config, then) {
     if (fs.existsSync(SAVE_FILE)) {
+        winston.info('reading data from local disk file ' + SAVE_FILE);
         fs.readFile(SAVE_FILE, 'utf8', then);
         return;
     }

@@ -7,6 +7,7 @@ import fs=require('fs');
 var winston = require('winston');
 import _ = require('lodash');
 import request=require('request');
+import zlib =  require('zlib');
 
 var format = exports.format=function (str:string, ...args:any[]):string {
         return str.replace(/{(\d+)}/g, (match, number)=> {
@@ -29,7 +30,10 @@ var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
 
     winston.debug(url);
 
-    var req:any= {url:url};
+    var req:any= {
+        url: url,
+        gzip: true
+    };
 
     if ( aProxy ){
         req.proxy=aProxy;
@@ -47,11 +51,12 @@ var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
                 err = 'Invalid response from server:' + error.message;
             }
 
-            if ( response && response.statusCode != 200 ){
-                err = 'response '+response.statusCode+'  from server';
+            if (response && response.statusCode != 200) {
+                err = 'response ' + response.statusCode + '  from server';
             }
 
-            if ( body) {
+
+            if (body) {
                 winston.debug('<result>' + body.substring(0, 256).replace(/\r\n/g, ''));
                 winston.silly(body);
             }
@@ -62,6 +67,7 @@ var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
             }
 
             then(null, body);
+
         });
     }
     catch (err) {
@@ -108,6 +114,7 @@ var SAVE_FILE='incomming.feed.message';
 exports.pull=function(config,then:(err,dat)=>void){
 
     if ( fs.existsSync(SAVE_FILE) ){
+        winston.info('reading data from local disk file '+SAVE_FILE);
         fs.readFile (SAVE_FILE,'utf8',then);
         return;
     }
