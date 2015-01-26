@@ -20,9 +20,24 @@ var opts=require('node-getopt').create([
 var handledMessages,messageHandlers,runDb,config;
 
 function run() {
+
+    var shouldExit=false;
+
+    process.on('SIGINT', function() {
+        console.log("Caught interrupt signal - starting clean shutdown");
+
+        shouldExit=true;
+    });
+
     winston.info('Feedreader started', ()=> {
 
         async.forever((next)=> {
+
+                if ( shouldExit ){
+                    winston.info('Shutdown complete');
+                    process.exit(0);
+                    return 0;
+                }
 
             winston.debug('Fetching data');
 
