@@ -79,31 +79,56 @@ function getSession(config, then) {
         then(null, session);
     }
 }
-var SAVE_FILE = 'incomming.feed.message';
+var ACK_FILE = 'ack.id';
 exports.pull = function (config, then) {
-    if (fs.existsSync(SAVE_FILE)) {
-        winston.info('reading data from local disk file ' + SAVE_FILE);
-        fs.readFile(SAVE_FILE, 'utf8', then);
-        return;
-    }
     getSession(config, function (err, ret) {
         if (err) {
             then(err, null);
             return;
         }
-        fetch(format('integration.telogis.com/XmlDataFeed/reports.aspx?token={0}&feed=topic-{1}&element_mode=true', ret, config.topic), function (err, ret) {
-            if (err) {
-                winston.error(err);
-                ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport />';
-            }
-            fs.writeFile(SAVE_FILE, ret, function (err, t) {
+        function doFetch() {
+            fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true', ret, config.topic), function (err, ret) {
+                if (err) {
+                    winston.error(err);
+                    ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport />';
+                }
                 then(err, ret);
+            });
+        }
+        if (fs.existsSync(ACK_FILE)) {
+            winston.info('acking unacked packed');
+            var id = fs.readFileSync(ACK_FILE, 'utf8');
+            ack(config, id, function (x) { return x ? then(x, null) : doFetch(); });
+        }
+        else {
+            doFetch();
+        }
+    });
+};
+var ack = exports.ack = function (config, id, then) {
+    if (id == 'noresults') {
+        then(null);
+        return;
+    }
+    fs.writeFile(ACK_FILE, id, function (err, ret) {
+        if (err) {
+            then(err);
+            return;
+        }
+        getSession(config, function (err, ret) {
+            if (err) {
+                then(err);
+                return;
+            }
+            fetch(format('integration.telogis.com/XmlDataFeed/ack.aspx?id={0}&token={1}&feed=topic-{2}', id, ret, config.topic), function (err, ret) {
+                if (err) {
+                    then(err);
+                    return;
+                }
+                fs.unlink(ACK_FILE, then);
             });
         });
     });
-};
-exports.ack = function () {
-    fs.unlinkSync(SAVE_FILE);
 };
 var isNumber = /^[+-]?\d+$/, isFloat = /^[+-]?\d+\.\d+$/, isBool = /^(true|false)$/, isIso = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/;
 var tests = [isNumber, isFloat, isIso, isBool];

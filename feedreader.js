@@ -6,20 +6,28 @@ var async = require('async');
 var utils = require('./util');
 var winston = require('winston');
 var fs = require('fs');
+var path = require('path');
 process.chdir(__dirname);
 var opts = require('node-getopt').create([
     ['c', 'config=ARG', 'Set config file, defaults to ./config'],
     ['s', 'setting=ARG+', 'Replace a setting in the config section of the config file'],
-    ['f', 'file=ARG', 'load configuration overrides from a json file (must be proper json, not javascript)']
+    ['f', 'file=ARG', 'load configuration overrides from a json file (must be proper json, not javascript)'],
+    ['1', 'runOnce', 'Run a single packet of xml tata through the transforms and database then exit'],
+    ['x', 'xml=ARG', 'process xml in the given file and exit']
 ]).bindHelp().parseSystem();
 var handledMessages, messageHandlers, runDb, config;
 function run() {
     var shouldExit = false;
     process.on('SIGINT', function () {
-        console.log("Caught interrupt signal - starting clean shutdown");
+        winston.info("Caught interrupt signal - starting clean shutdown");
         shouldExit = true;
+        setTimeout(function () {
+            winston.error("process failed to shutdown cleanly");
+            process.exit(1);
+        }, 30000);
     });
     winston.info('Feedreader started', function () {
+        var xml;
         async.forever(function (next) {
             if (shouldExit) {
                 winston.info('Shutdown complete');
@@ -27,11 +35,13 @@ function run() {
                 return 0;
             }
             winston.debug('Fetching data');
-            utils.pull(config.feed, function (err, ret) {
+            xml = null;
+            pull(config.feed, function (err, ret) {
                 if (err) {
                     next(err);
                     return;
                 }
+                xml = ret;
                 winston.silly('Parsing XML');
                 parseXML(ret, function (err, data) {
                     if (err) {
@@ -39,6 +49,8 @@ function run() {
                         return;
                     }
                     var report = data.DataFeedReport;
+                    var ackId = report.$.id;
+                    delete report.$;
                     var types = _.keys(report);
                     var toProcess = _.intersection(handledMessages, types);
                     if (toProcess.length == 0) {
@@ -48,8 +60,13 @@ function run() {
                         else {
                             winston.warn('No handlers for returned message types (%s)', types.join(','));
                         }
-                        utils.ack();
-                        setTimeout(next, 15000);
+                        utils.ack(config.feed, ackId, function (x) {
+                            if (x) {
+                                next(x);
+                                return;
+                            }
+                            setTimeout(next, 15000);
+                        });
                         return;
                     }
                     winston.silly(report);
@@ -66,14 +83,33 @@ function run() {
                             next(err);
                             return;
                         }
-                        utils.ack();
-                        next(null);
+                        if (opts.options.xml) {
+                            next('exit after processing xml file');
+                            return;
+                        }
+                        xml = null; //We have success - so don't need to log on ack failure
+                        utils.ack(config.feed, ackId, function (x) {
+                            if (x) {
+                                next(x);
+                                return;
+                            }
+                            next(opts.options.runOnce ? 'run once flag specified - exiting' : null);
+                        });
                     });
                 });
             });
         }, function (err) {
             winston.error(err);
-            winston.error(err.message);
+            if (err.message) {
+                winston.error(err.message);
+            }
+            if (config.errorDir && xml) {
+                var md5 = require('crypto').createHash('md5');
+                var sum = md5.update(xml).digest('hex');
+                var p = path.join(config.errorDir, sum + ".xml");
+                winston.error('xml written to (%s)', p);
+                fs.writeFileSync(p, xml);
+            }
             winston.error('Feedreader exiting with error', function (err) {
                 setTimeout(function () {
                     process.exit(1);
@@ -81,6 +117,16 @@ function run() {
             });
         });
     });
+}
+function pull(config, then) {
+    if (opts.options.xml) {
+        winston.info('reading data from file (%s)', opts.options.xml);
+        opts.options.runOnce = true;
+        fs.readFile(opts.options.xml, 'utf8', then);
+    }
+    else {
+        utils.pull(config, then);
+    }
 }
 function loadConfiguration() {
     var configFileName = opts.options.config || './config';
@@ -140,7 +186,7 @@ function loadConfiguration() {
     config.db = config[db];
     winston.info('using database handler (%s)', db);
     if (config.feed.proxy) {
-        winston.info('using proxy %s', config.feed.proxy);
+        winston.info('using proxy (%s)', config.feed.proxy.replace(/[^p]\:.*?@/, ':*******@'));
         utils.proxy(config.feed.proxy);
     }
 }
