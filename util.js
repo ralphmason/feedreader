@@ -86,23 +86,20 @@ exports.pull = function (config, then) {
             then(err, null);
             return;
         }
-        function doFetch() {
-            fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true', ret, config.topic), function (err, ret) {
-                if (err) {
-                    winston.error(err);
-                    ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport />';
-                }
-                then(err, ret);
-            });
+        var ackid;
+        if (fs.existsSync(ACK_FILE + config.topic)) {
+            ackid = fs.readFileSync(ACK_FILE + config.topic, 'utf8');
         }
-        if (fs.existsSync(ACK_FILE)) {
-            winston.info('acking unacked packed');
-            var id = fs.readFileSync(ACK_FILE, 'utf8');
-            ack(config, id, function (x) { return x ? then(x, null) : doFetch(); });
-        }
-        else {
-            doFetch();
-        }
+        fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true{2}', ret, config.topic, ackid ? '&ackid=' + ackid : ''), function (err, ret) {
+            if (ackid) {
+                fs.unlinkSync(ACK_FILE + config.topic);
+            }
+            if (err) {
+                winston.error(err);
+                ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport id="noresults"/>';
+            }
+            then(err, ret);
+        });
     });
 };
 var ack = exports.ack = function (config, id, then) {
@@ -110,24 +107,12 @@ var ack = exports.ack = function (config, id, then) {
         then(null);
         return;
     }
-    fs.writeFile(ACK_FILE, id, function (err, ret) {
+    fs.writeFile(ACK_FILE + config.topic, id, function (err, ret) {
         if (err) {
             then(err);
             return;
         }
-        getSession(config, function (err, ret) {
-            if (err) {
-                then(err);
-                return;
-            }
-            fetch(format('integration.telogis.com/XmlDataFeed/ack.aspx?id={0}&token={1}&feed=topic-{2}', id, ret, config.topic), function (err, ret) {
-                if (err) {
-                    then(err);
-                    return;
-                }
-                fs.unlink(ACK_FILE, then);
-            });
-        });
+        then(null);
     });
 };
 var isNumber = /^[+-]?\d+$/, isFloat = /^[+-]?\d+\.\d+$/, isBool = /^(true|false)$/, isIso = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/;

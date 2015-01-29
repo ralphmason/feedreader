@@ -113,38 +113,40 @@ function getSession(config,then:(err,dat)=>void ){
 
 var ACK_FILE ='ack.id';
 
-exports.pull=function(config,then:(err,dat)=>void){
+exports.pull=function(config,then:(err,dat)=>void) {
 
-    getSession(config,(err,ret)=> {
+    getSession(config, (err, ret)=> {
 
-            if (err) {
-                then(err, null);
-                return;
-            }
+        if (err) {
+            then(err, null);
+            return;
+        }
 
-            function doFetch() {
-                fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true', ret, config.topic),
-                    (err, ret)=> {
+        var ackid;
 
-                        if (err) {   //tolerate transient issues
-                            winston.error(err);
-                            ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport />';
-                        }
 
-                        then(err, ret);
+        if (fs.existsSync(ACK_FILE+config.topic)) {
+            ackid = fs.readFileSync(ACK_FILE+config.topic, 'utf8');
+        }
 
-                    });
-            }
+        fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true{2}', ret, config.topic,
+                ackid ? '&ackid=' + ackid : ''),
+            (err, ret)=> {
 
-            if (fs.existsSync(ACK_FILE)) {
-                winston.info('acking unacked packed');
-                var id = fs.readFileSync(ACK_FILE, 'utf8');
-                ack(config,id, x=> x? then(x,null) :doFetch() );
-            }
-            else {
-                doFetch();
-            }
-        });
+                if ( ackid) {
+                    fs.unlinkSync(ACK_FILE+config.topic);
+                }
+
+                if (err) {   //tolerate transient issues
+                    winston.error(err);
+                    ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport id="noresults"/>';
+                }
+
+               then(err, ret);
+
+            });
+
+    });
 }
 
 
@@ -156,30 +158,15 @@ var ack = exports.ack=function(config,id,then:(err,ret?)=>void) {
     }
 
 
-    fs.writeFile(ACK_FILE, id, (err, ret)=> {
+    fs.writeFile(ACK_FILE+config.topic, id, (err, ret)=> {
 
         if (err) {
             then(err);
             return;
         }
 
-        getSession(config, (err, ret)=> {
+        then(null);
 
-            if (err) {
-                then(err);
-                return;
-            }
-
-            fetch(format('integration.telogis.com/XmlDataFeed/ack.aspx?id={0}&token={1}&feed=topic-{2}', id, ret, config.topic),
-                (err, ret)=> {
-                    if (err) {
-                        then(err);
-                        return;
-                    }
-
-                    fs.unlink(ACK_FILE, then);
-                });
-        });
     });
 }
 
