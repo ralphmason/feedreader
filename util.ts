@@ -43,7 +43,14 @@ var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
 
     try {
 
+        var t = setTimeout(()=>{
+            winston.error('request time-out');
+            process.exit(1);
+        },120000);
+
         request(req, (error, response, body)=> {
+
+            clearTimeout(t);
 
             var err = null;
 

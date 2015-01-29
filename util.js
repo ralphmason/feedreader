@@ -31,7 +31,12 @@ var fetch = exports.fetch = function (url, then) {
         req.requestCert = true;
     }
     try {
+        var t = setTimeout(function () {
+            winston.error('request time-out');
+            process.exit(1);
+        }, 120000);
         request(req, function (error, response, body) {
+            clearTimeout(t);
             var err = null;
             if (error) {
                 err = 'Invalid response from server:' + error.message;
