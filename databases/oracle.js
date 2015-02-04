@@ -94,7 +94,7 @@ module.exports = function (transformed, winston, config, next) {
             }
             if (!sentSql && /SQL>/.test(d.toString())) {
                 sentSql = true;
-                sqlplus.stdin.write(torun + '\n/\nexit\n', 'utf8', function () {
+                sqlplus.stdin.write('set scan off\n' + torun + '\n/\nexit\n', 'utf8', function () {
                 });
             }
         });

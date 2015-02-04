@@ -34,7 +34,6 @@ function run() {
                 process.exit(0);
                 return 0;
             }
-            winston.debug('Fetching data');
             xml = null;
             pull(config.feed, function (err, ret) {
                 if (err) {
@@ -87,7 +86,9 @@ function run() {
                             next('exit after processing xml file');
                             return;
                         }
-                        xml = null; //We have success - so don't need to log on ack failure
+                        if (!opts.options.runOnce) {
+                            xml = null; //We have success - so don't need to log on ack failure
+                        }
                         utils.ack(config.feed, ackId, function (x) {
                             if (x) {
                                 next(x);

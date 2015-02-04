@@ -121,14 +121,14 @@ module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
             if (/ERROR/.test(str)) {
                 winston.error(str);
-                isError=str;
+                isError = str;
                 sqlplus.kill();
                 return;
             }
 
             if (!sentSql && /SQL>/.test(d.toString())) {
                 sentSql = true;
-                sqlplus.stdin.write(torun + '\n/\nexit\n', 'utf8', ()=> {
+                sqlplus.stdin.write('set scan off\n'+ torun + '\n/\nexit\n', 'utf8', ()=> {
                 });
             }
         });

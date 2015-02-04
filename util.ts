@@ -140,7 +140,7 @@ exports.pull=function(config,then:(err,dat)=>void) {
                 ackid ? '&ackid=' + ackid : ''),
             (err, ret)=> {
 
-                if ( ackid) {
+                if ( !err &&  ackid) {
                     fs.unlinkSync(ACK_FILE+config.topic);
                 }
 

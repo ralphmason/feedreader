@@ -50,9 +50,7 @@ function run() {
                 return 0;
             }
 
-            winston.debug('Fetching data');
-            xml = null;
-
+             xml = null;
 
             pull(config.feed, (err, ret)=> {
                 if (err) {
@@ -119,7 +117,10 @@ function run() {
                             return;
                         }
 
-                        xml=null; //We have success - so don't need to log on ack failure
+                        if ( !opts.options.runOnce) {
+                            xml = null; //We have success - so don't need to log on ack failure
+                                        //Except runOnce where we save the xml anyway.
+                        }
 
                         utils.ack(config.feed,ackId, (x)=>{
                             if (x) {

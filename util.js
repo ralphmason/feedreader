@@ -96,7 +96,7 @@ exports.pull = function (config, then) {
             ackid = fs.readFileSync(ACK_FILE + config.topic, 'utf8');
         }
         fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true{2}', ret, config.topic, ackid ? '&ackid=' + ackid : ''), function (err, ret) {
-            if (ackid) {
+            if (!err && ackid) {
                 fs.unlinkSync(ACK_FILE + config.topic);
             }
             if (err) {
