@@ -28,7 +28,7 @@ You function should return the table for an insert and a object representing the
 
 Example
 <code>exports.transform_Foo=function(aFoo){
-			return ['foo',{ bar:Foo.Bar } ]
+			return ['foo',{ bar:aFoo.Bar } ]
 	}
 </code>
 
@@ -83,6 +83,15 @@ The database driver to use is selected in your config file by having a section m
 >
 > If you implement a new database engine and are happy to share please do so!
 >
+## random notes
+>
+> Log level 'silly' appears to be very processor heavy, it logs lots of data and causes winston to do lots of formatting and parsing. When benchmarking we went from 6k records per minute into mongo to 30k per minute by just changing from silly to debug in the log file.
+>
+## counters
+>
+> feedreader counts the number of each type of message delivered and trends them over time they appear in the log file as count:<Name>[counts].
+> The counts are the number of messages in the last 1,5,15,60,120,240,1440 minutes, you can parse the tail of the log file to make munin / naigos graphs & monitoring
+
 > ## Putting it all together
 ![enter image description here](https://www.lucidchart.com/publicSegments/view/54aff4e5-81cc-45f4-850d-31dc0a00851b/image.png)
 

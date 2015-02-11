@@ -9,6 +9,7 @@ var utils=require('./util');
 var winston = require('winston');
 var fs=require('fs');
 var path=require('path');
+import counter=require('./counter');
 
 process.chdir(__dirname);
 
@@ -27,16 +28,27 @@ function run() {
 
     var shouldExit=false;
 
-    process.on('SIGINT', function() {
+
+    function doExit() {
         winston.info("Caught interrupt signal - starting clean shutdown");
 
-        shouldExit=true;
+        shouldExit = true;
 
-        setTimeout(()=>{
+        setTimeout(()=> {
             winston.error("process failed to shutdown cleanly");
             process.exit(1);
-        },30000);
-    });
+        }, 30000);
+    }
+
+    process.on('SIGINT',doExit);
+    process.on('SIGTERM',doExit);
+
+    counter.beforeRollover((c)=>{
+        _.forOwn(c,(v,n)=>{
+            winston.info("count:%s-[%s]",n,v.getValues().join(','))
+        });
+    }) ;
+
 
     winston.info('Feedreader started', ()=> {
 
@@ -103,6 +115,7 @@ function run() {
                         var transform = messageHandlers[aType];
                         var data = report[aType];
                         winston.debug('%d \'%s\' returned', data.length, aType);
+                        counter.getCounter(aType).add(data.length);
                         var v = _.map(data, d=>transform(utils.cleanObject(d)));
                         transformed = transformed.concat(v);
                     });
@@ -167,6 +180,8 @@ function pull(config,then:(err,ret)=>void){
         utils.pull(config,then);
     }
 }
+
+
 
 function loadConfiguration() {
 

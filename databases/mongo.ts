@@ -6,8 +6,6 @@ var mongo       = require('mongodb').MongoClient;
 import _        = require('lodash');
 import async    = require('async');
 
-var m = require('moment');
-
 module.exports=function (transformed,winston,config,next:(err,res)=>void) {
 
     var tables = _.uniq(_.map(transformed, x=>x[0]));

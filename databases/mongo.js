@@ -3,7 +3,6 @@
 var mongo = require('mongodb').MongoClient;
 var _ = require('lodash');
 var async = require('async');
-var m = require('moment');
 module.exports = function (transformed, winston, config, next) {
     var tables = _.uniq(_.map(transformed, function (x) { return x[0]; }));
     var client = mongo.connect(config.connectstring, function (err, db) {
