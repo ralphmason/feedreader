@@ -7,7 +7,9 @@ var app = path.join(path.resolve(__dirname,'..'),'feedreader.js');
 var svc = new Service({
     name:'Telogis Feedreader',
     description: 'Telogis feedreader service',
-    script: app
+    script: app,
+    wait:5,
+    grow:0
 });
 
 // Listen for the "install" event, which indicates the
