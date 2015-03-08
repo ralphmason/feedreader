@@ -30,7 +30,14 @@ function run() {
 
 
     function doExit() {
+
+        if ( shouldExit ){
+            winston.info("Doing forced shutdown");
+            process.exit(1);
+        }
+
         winston.info("Caught interrupt signal - starting clean shutdown");
+        winston.info("Signal again to force");
 
         shouldExit = true;
 
@@ -66,7 +73,9 @@ function run() {
 
             pull(config.feed, (err, ret)=> {
                 if (err) {
-                    next(err);
+                    winston.error(err);
+                    utils.clearSession();
+                    setTimeout(next, 15000);
                     return;
                 }
 
@@ -111,10 +120,13 @@ function run() {
 
                     var transformed = [];
 
+                    var records = 0;
+
                     _.forEach(toProcess, aType=> {
                         var transform = messageHandlers[aType];
                         var data = report[aType];
                         winston.debug('%d \'%s\' returned', data.length, aType);
+                        records += data.length;
                         counter.getCounter(aType).add(data.length);
                         var v = _.map(data, d=>transform(utils.cleanObject(d)));
                         transformed = transformed.concat(v);
@@ -140,7 +152,14 @@ function run() {
                                 next(x);
                                 return;
                             }
-                            next(opts.options.runOnce ? 'run once flag specified - exiting' : null);
+
+                            var timeout = 0;
+
+                            if ( records < 250 ){
+                                timeout = 7000;
+                            }
+
+                           setTimeout(()=>next(opts.options.runOnce ? 'run once flag specified - exiting' : null), timeout);
                         });
                     });
                 });

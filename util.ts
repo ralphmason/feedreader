@@ -24,33 +24,28 @@ var proxy=exports.proxy=function(p){
     aProxy=p;
 }
 
-var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
+
+var fetch = exports.fetch = function (url:string, then:(err:string, data)=>void) {
 
     url = "https://" + url;
 
     winston.debug(url);
 
-    var req:any= {
+    var req:any = {
         url: url,
-        gzip: true
+        gzip: true,
+        timeout: 60000,
     };
 
-    if ( aProxy ){
-        req.proxy=aProxy;
-        req.rejectUnauthorized=false;
-        req.requestCert= true;
+    if (aProxy) {
+        req.proxy = aProxy;
+        req.rejectUnauthorized = false;
+        req.requestCert = true;
     }
 
     try {
 
-        var t = setTimeout(()=>{
-            winston.error('request time-out');
-            process.exit(1);
-        },120000);
-
         request(req, (error, response, body)=> {
-
-            clearTimeout(t);
 
             var err = null;
 
@@ -69,18 +64,23 @@ var fetch=exports.fetch =function (url:string, then:(err:string, data)=>void) {
             }
 
             if (err) {
-                then(err + " data:" + body, null);
+                if (body) {
+                    err.body = body;
+                }
+
+                then(err, null);
                 return;
             }
 
             then(null, body);
 
         });
+
     }
     catch (err) {
         then(err, null);
     }
-}
+};
 
 var session = null;
 var sessionCreateTime=Date.now();
@@ -117,6 +117,11 @@ function getSession(config,then:(err,dat)=>void ){
     }
 }
 
+exports.clearSession=function(){
+    session=null;
+}
+
+
 
 var ACK_FILE ='ack.id';
 
@@ -142,11 +147,6 @@ exports.pull=function(config,then:(err,dat)=>void) {
 
                 if ( !err &&  ackid) {
                     fs.unlinkSync(ACK_FILE+config.topic);
-                }
-
-                if (err) {   //tolerate transient issues
-                    winston.error(err);
-                    ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport id="noresults"/>';
                 }
 
                then(err, ret);

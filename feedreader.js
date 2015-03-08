@@ -20,7 +20,12 @@ var handledMessages, messageHandlers, runDb, config;
 function run() {
     var shouldExit = false;
     function doExit() {
+        if (shouldExit) {
+            winston.info("Doing forced shutdown");
+            process.exit(1);
+        }
         winston.info("Caught interrupt signal - starting clean shutdown");
+        winston.info("Signal again to force");
         shouldExit = true;
         setTimeout(function () {
             winston.error("process failed to shutdown cleanly");
@@ -45,7 +50,9 @@ function run() {
             xml = null;
             pull(config.feed, function (err, ret) {
                 if (err) {
-                    next(err);
+                    winston.error(err);
+                    utils.clearSession();
+                    setTimeout(next, 15000);
                     return;
                 }
                 xml = ret;
@@ -78,10 +85,12 @@ function run() {
                     }
                     winston.silly(report);
                     var transformed = [];
+                    var records = 0;
                     _.forEach(toProcess, function (aType) {
                         var transform = messageHandlers[aType];
                         var data = report[aType];
                         winston.debug('%d \'%s\' returned', data.length, aType);
+                        records += data.length;
                         counter.getCounter(aType).add(data.length);
                         var v = _.map(data, function (d) { return transform(utils.cleanObject(d)); });
                         transformed = transformed.concat(v);
@@ -103,7 +112,11 @@ function run() {
                                 next(x);
                                 return;
                             }
-                            next(opts.options.runOnce ? 'run once flag specified - exiting' : null);
+                            var timeout = 0;
+                            if (records < 250) {
+                                timeout = 7000;
+                            }
+                            setTimeout(function () { return next(opts.options.runOnce ? 'run once flag specified - exiting' : null); }, timeout);
                         });
                     });
                 });

@@ -23,7 +23,8 @@ var fetch = exports.fetch = function (url, then) {
     winston.debug(url);
     var req = {
         url: url,
-        gzip: true
+        gzip: true,
+        timeout: 60000
     };
     if (aProxy) {
         req.proxy = aProxy;
@@ -31,12 +32,7 @@ var fetch = exports.fetch = function (url, then) {
         req.requestCert = true;
     }
     try {
-        var t = setTimeout(function () {
-            winston.error('request time-out');
-            process.exit(1);
-        }, 120000);
         request(req, function (error, response, body) {
-            clearTimeout(t);
             var err = null;
             if (error) {
                 err = 'Invalid response from server:' + error.message;
@@ -49,7 +45,10 @@ var fetch = exports.fetch = function (url, then) {
                 winston.silly(body);
             }
             if (err) {
-                then(err + " data:" + body, null);
+                if (body) {
+                    err.body = body;
+                }
+                then(err, null);
                 return;
             }
             then(null, body);
@@ -84,6 +83,9 @@ function getSession(config, then) {
         then(null, session);
     }
 }
+exports.clearSession = function () {
+    session = null;
+};
 var ACK_FILE = 'ack.id';
 exports.pull = function (config, then) {
     getSession(config, function (err, ret) {
@@ -98,10 +100,6 @@ exports.pull = function (config, then) {
         fetch(format('integration.telogis.com/XmlDataFeed/ackreports.aspx?token={0}&feed=topic-{1}&element_mode=true{2}', ret, config.topic, ackid ? '&ackid=' + ackid : ''), function (err, ret) {
             if (!err && ackid) {
                 fs.unlinkSync(ACK_FILE + config.topic);
-            }
-            if (err) {
-                winston.error(err);
-                ret = '<?xml version="1.0" encoding="UTF-8"?><DataFeedReport id="noresults"/>';
             }
             then(err, ret);
         });
